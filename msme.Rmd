@@ -1,0 +1,121 @@
+---
+title: "MSME_loans"
+author: "Osasere"
+date: "2024-01-09"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## MSME LOANS
+
+The government have decided to give loans to Micro, small and medium enterprises in the state.
+
+```{r cars}
+summary(cars)
+```
+
+#there are some columns with inappropraite column names so we are going to standardize the column names
+df <- df %>%
+  rename(sen_zone = `Sen. Zone`, amount_granted = `Amount Granted`)
+View(df)
+df <- df %>%
+  rename(
+    principal_balance = `Principal Balance`, date_granted = `Date Granted`,
+    expiry_date = `Expiry Date`, balance = Balance,
+    amount_paid = `Paid amount`, total_amount = `Total amount to be paid`)
+view
+
+#dropping unwanted columns in the data frame
+library(dplyr)
+
+df <- df %>%
+  select(-(`Principal paid`), -('Interest paid'))
+
+df <- df %>%
+  select(-(`Principal past due`), -('Interest past due'))
+
+#summary statistics for descriptive statistics
+summary(df)
+
+attach(df)
+
+#to understand the number of males and females that benefited from this project
+
+table<-table(Sex)
+
+ggplot(df, aes(x = Sex, fill = Sex)) +
+  geom_bar(stat = "count", show.legend = FALSE) +  
+  geom_text(stat = "count", aes(label = ..count..), position = position_stack(vjust = 1.02)) +  
+  scale_fill_manual(values = c("red", "blue"), name = "Sex") + 
+  labs(title = "Number of Beneficiaries per Gender", x = "Sex", y = "Number of Beneficiaries")
+
+#Boxplot to show the distribution of amount granted per sex in this data
+ggplot(df, aes(x = Sex, y = amount_granted, fill = Sex)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("red", "blue"), name = "Sex") +  
+  labs(title = "Amount Granted per Sex", x = "Sex", y = "Amount Granted") 
+
+#Boxplot to show the distribution of amount granted per Senatorial zones 
+ggplot(df, aes(x = sen_zone, y = amount_granted, fill = sen_zone)) +
+  geom_boxplot() +
+  scale_fill_manual(values = c("red", "blue","yellow"), name = "sen_zone") +  
+  labs(title = "Amount Granted per Senatorial Zone", x = "sen_zone", y = "Amount Granted") 
+
+#to specifically show the average amount granted by sex
+mean_amount_by_sex <- df %>%
+  group_by(Sex) %>%
+  summarize(mean_amount = mean(amount_granted, na.rm = TRUE))
+
+print(mean_amount_by_sex)
+
+#Barplot to visualise the difference in mean of the amount granted for different sexes
+ggplot(df, aes(x = Sex, y = amount_granted, fill = Sex)) +
+  geom_bar(stat = "summary", fun = "mean", position = "dodge") +
+  scale_fill_manual(values = c("red", "blue"), name = "Sex") + 
+  labs(title = "Mean Amount Granted by Sex", x = "Sex", y = "Mean Amount Granted") 
+
+#Barplot to visualise the difference in mean of the amount granted for senatorial zones
+ggplot(df, aes(x = sen_zone, y = amount_granted, fill = sen_zone)) +
+  geom_bar(stat = "summary", fun = "mean", position = "dodge") +
+  scale_fill_manual(values = c("red", "blue", "yellow"), name = "Sen_zone") + 
+  labs(title = "Mean Amount Granted by Senatorial Zone", x = "Senatorial Zones", y = "Mean Amount Granted") 
+
+#Barplot to visualise the sum of the amount granted by sexes
+ggplot(df, aes(x = Sex, y = amount_granted, fill = Sex)) +
+  geom_bar(stat = "summary", fun = "sum", position = "dodge") +
+  scale_fill_manual(values = c("red", "blue"), name = "Sex") + 
+  labs(title = "Sum of Amount Granted by Sex", x = "Sex", y = "Sum of Amount Granted") 
+
+#Barplot to visualise the sum of the amount granted by senatorial zones
+ggplot(df, aes(x = sen_zone, y = amount_granted, fill = sen_zone)) +
+  geom_bar(stat = "summary", fun = "sum", position = "dodge") +
+  scale_fill_manual(values = c("red", "blue", "yellow"), name = "Sen_zone") + 
+  labs(title = "Sum of Amount Granted by Senatorial Zone", x = "Senatorial Zones", y = "Sum of Amount Granted") 
+
+#density plot to understand better the distribution of the amount granted per sex
+ggplot(df, aes(x = amount_granted, fill = Sex)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = c("red", "blue"), name = "Sex") + 
+  labs(title = "Density Plot: Total Amount Granted by Sex", x = "Total Amount Granted")
+
+#Stacked bar plot to understand how different genders contributed to the amount granted per senatorial zones
+
+df %>%
+  count(sen_zone, Sex) %>%
+  ggplot(aes(x = sen_zone, y = n, fill = Sex)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("pink", "blue"), name = "Sex") + 
+  labs(title = "Stacked Bar Plot: Sex by Senatorial Zones", x = "Senatorial Zone", y = "Frequency", fill = "Sex")
+
+#Scatterplot to understand if the amount granted and percentage repaid has a positive relationship
+
+ggplot(df, aes(x = amount_granted, y = Percentage)) +
+  geom_point(color = "blue", size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Scatterplot: Amount Granted vs Percentage paid", x = "Amount Granted", y = "Percentage paid")
+
+cor(amount_granted,Percentage)
+
